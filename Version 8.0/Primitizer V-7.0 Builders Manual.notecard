@@ -1,0 +1,343 @@
+Linden text version 2
+{
+LLEmbeddedItems version 1
+{
+count 0
+}
+Text length 21277
+The Primitizer Builders Manual
+By Revolution Perenti
+
+Welcome to the world of building for your Primitizer System.  Anyone wishing to build scenes for the Primitizer needs to have a good understanding of building / texturing skills to succeed.  
+Please read this manual through once fully and then as needed when you start building.
+
+Introduction
+Scene Building overview
+Glove Building overview
+Texture Card
+Particle Card
+Light Card
+Scene Creation
+Glove Creation
+Tips
+Packaging
+
+Introduction
+The main thing to remember is any object you want to put in the primitizer scene must be copy / mod at a minimum.  The way the Primitizer works is by rezzing “copies” of an item from it’s inventory. These objects must be modified, adding a special script to make them work with the system scripts.
+
+There are two ways to build for the Primitizer, 
+1. The linked scene or
+2. The multi item scene.
+
+The linked scene is made from multiple objects and linked to a root prim; the unlinked scene consists of a number or unlinked objects around the unit.
+A scene set will consist of the objects you create, an texture card, an particle card and lights card.
+These will be explained in greater detail as we move along.  
+The texture card must begin with tex_ and The texture card must begin with _  or the system will not read them. 
+The particle card must begin with psys_ and The particle card must begin with _  or the system will not read them. 
+The light card must begin with light_ and The light card must begin with _  or the system will not read them. 
+
+Feel free to give your scenes a user friendly name, but only with letters, numbers _ or – in the name.
+
+Scene Building Overview
+We will go into much more detail of how to build a scene later, and how to use the cards, but I will outline the basic procedure here.
+1.    Create the objects you want in your scene.  And arrange them as you like
+2.    Place a label script in every object you placed out in your scene.
+3.    Next texture the walls, floor ceiling set the repeats etc the way you want them just as would normally texture within second life but within your primitizer.
+4.    Use your primitizer controller or HUD and select “Options” and then select “Notecard” Select “Textures” to locate the texture parameters and copy these from the log to the tex_ notecard.
+5.    Open the demo tex_demo, and copy the info from the texture system to the notecard as explained above.
+6.    Next right click edit and check edit link parts and select the walls, floor ceiling and set the lights in the features tab the way you want them look.
+7.    Use your primitizer controller or HUD and select “Options” and then select “Notecard” Select “Lights” to locate the light parameters and copy these from the log to the light_ notecard.
+8.    Open the demo light_demo, and copy the info from the chat for the light system to the notecard as explained above.
+9.    Name the suffix of the notecards something user friendly. 
+10.    Use your primitizer controller or HUD and select “Create” from your scene menu. Name this prim the name of the scene and description of the scene, and set next user permissions.
+11.    Right click on the objects either as individual prims or as set and take into inventory.
+12.    Right click on the scene package, go into edit, more, contents and drag your scene objects and also copy package script and take your scene object into your inventory.
+13.    Right click on the Primitizer Box, go into edit, more, contents and drag the scene object, and tex_ and light_ cards and psys_ cards in there.
+14.    Still in edit, go to tools/reset scripts in selection or wait for your scripts to reset themselves.
+15.    your new scene should now be in the menu
+
+Glove Building Overview
+We will go into much more detail of how to build a gloves later, and how to use the cards, but I will outline the basic procedure here.
+1.    Create the objects you want in your glove then arrange them as you like around your shell.
+2.    Place a label script in every object you arrange out for your glove.
+3.    Next texture the outer walls, floor roof set the repeats etc the way you want them just as would normally texture within second life but within your primitizer.
+4.    Use your primitizer controller or HUD and select “Options” and then select “Notecard” Select “Textures” to locate the texture parameters and copy these from the log to the tex_ notecard.
+5.    Open the demo tex_demo, and copy the info from the texture system to the notecard as explained above.
+9.    Name the suffix of the notecards something user friendly. 
+10.    Use your primitizer controller or HUD and select “Create” from your scene menu. Name this prim the name of the glove and description of the glove, and set next user permissions.
+11.    Right click on the objects either as individual prims or as set and take into inventory, and set next user permissions.
+12.    Right click on the glove package, go into edit, more, contents and drag your glove objects and also copy package script and take your scene object into your inventory.
+13.    Right click on the Primitizer Box, go into edit, more, contents and drag the glove object, and tex_ cards in there.
+14.    Still in edit, go to tools/reset scripts in selection or wait for your scripts to reset themselves.
+15.    your new scene should now be in the menu
+
+Texture Card
+The Primitizer consists of walls, ceiling, and floor prims.  The texture card has one line for each of these inner prim faces.  The prims are named for their direction of the SL compass, and the name of each face on the texture card corresponds to these names.  The card must begin with tex_xxx where xxx is the name of the scene.
+
+Each line of the texture card has the following information.
+
+1.    TEXTURE_OBJECT
+1.    TEXTURE_UUID
+2.    TEXTURE_GLOW
+3.    TEXTURE_TEXGEN
+4.    TEXTURE_SHINY
+5.    TEXTURE_BUMP
+6.    TEXTURE_REPEATS
+7.    TEXTURE_OFFSETS
+8.    TEXTURE_ROTATE
+9.    TEXTURE_COLOR
+10.   TEXTURE_ALPHA
+
+once it’s completed, it may look like the following:
+
+south_wall|5748decc-f629-461c-9a36-a35a221fe21f|0.0|0|0|0|<1.0,1.0,0.0>|ZERO_VECTOR|0.0|ZERO_VECTOR|1.0
+
+Each of the items in the texture card must be separated by "|"
+
+*TEXTURE_OBJECT*
+The wall section name, corresponds to the name given each prim in the Primitizer, use the edit linked parts and then point to the prim, make a note of the wall name. 
+Then go to the card and find the same line containing that wall name.
+
+*TEXTURE_UUID*
+This is the ID of the texture you are using.  This texture must have full permissions. 
+Right click on the prim, then select texture, locate it in inventory, then right click and copy UUID.  Next paste this ID into the note card exactly between the "|".
+
+*TEXTURE_GLOW*
+this is the texture glow level from 0.0 - 1.0
+
+*TEXTURE_TEXGEN*
+This is the mapping type 0 = default mapping 1 = planar mapping
+
+*TEXTURE_SHINY*
+Used to get or set the shiny settings
+
+*TEXTURE_BUMP*
+Used to get or set the Bump Mapping settings
+
+*TEXTURE_REPEATS*
+These numbers correspond to the Horizontal/Vertical repeats found in the texture tab in your edit window.  
+<1.5,1,0>
+The first number is Horizontal repeats, the second one is Vertical, the third is not used, so will always be 0.
+Please make sure that the numbers are separated with a comma or they will not work.
+
+*TEXTURE_OFFSETS*
+This set of numbers corresponds to the Horizontal/Vertical Offsets also found in the texture tab in the edit window. 
+For most builds you will keep this set at NULL_VECTOR, since you can’t leave these numbers as 0,0,0.
+If you do need to offset a texture for some reason, you would replace NULL_VECTOR, with <.5,0,0>, again the first number in the set corresponds to the horizontal offset, the second for vertical offset, the third is not to be used, therefore is left at 0.
+
+*TEXTURE_ROTATE*
+If the texture must be rotated for some reason on the prim face, you will enter that number in the float rotation section.  In the example above it’s set at 90.0.  Because of the location of some of the walls they will need to be set at 90.0 anyway.
+
+*TEXTURE_COLOR*
+If you would like to tint the prim face, you will use this section. For walls that are not tinted, leave the numbers at 1,1,1 because this is equivalent to white / clear.  0,0,0 is black.  
+Below are the basic colors, and included with the Photographer’s Photo Studio package is a full list of colors in SL format.
+
+Red, Green Blue
+Number may go between 0.1 to 0.9 for each of the three colors
+white = <1.0, 1.0, 1.0>;
+grey = <0.5, 0.5, 0.5>;
+black = <0.0, 0.0, 0.0>;
+red = <1.0, 0.0, 0.0>;
+green = <0.0, 1.0, 0.0>;
+blue = <0.0, 0.0, 1.0>;
+yellow = <1.0, 1.0, 0.0>;
+cyan = <0.0, 1.0, 1.0>;
+magenta = <1.0, 0.0, 1.0>;
+
+*TEXTURE_ALPHA*
+This corresponds to the amount of transparency, 1.0 being no transparency, 0.0 is full transparency.
+
+NOTE: One final word on textures.  Make sure that when you reference a texture id key, that you keep that texture in your inventory,  If you delete it from inventory, after a while it will be also deleted from the asset inventory SL keeps and won’t work anymore.
+
+That’s it for the texture note-card.  It’s a little confusing in the beginning, but you will get the hang of it in no time. A demo note-card has been provided for you to use in what ever way you want.  Just remember when naming the card, to use the tex_ prefix.
+
+Particle Card
+The Photographer’s Photo Studio consists of 15 emitters in the photo studio.  The particle card has one line for each of these inner prim faces.  The card must begin with the name of the effect, which, must be the same name as will be given to the scene package.
+
+NOTE: Our particle layout is based on our Dazzle Software - Particle Script Generator and can be a good and Ideal solution for making particles for the Photographer’s Photo Studio and can be found on second life marketplace
+
+Production Model
+https://marketplace.secondlife.com/p/Dazzle-Software-Particle-Script-Generator-Production/3685834
+
+Reseller Model
+https://marketplace.secondlife.com/p/Dazzle-Software-Particle-Script-Generator-Reseller/3685842
+
+Open Source
+https://marketplace.secondlife.com/p/Dazzle-Software-Particle-Script-Generator-Open-Source/3685829
+
+Each line of the particle card has the following information.
+
+1.    PSYS_OBJECT_NAME
+2.    PSYS_PART_FLAGS
+3.    PSYS_START_SCALE
+4.    PSYS_END_SCALE
+5.    PSYS_START_COLOR
+6.    PSYS_END_COLOR
+7.    PSYS_START_ALPHA
+8.    PSYS_END_ALPHA
+9.    PSYS_SRC_PATTERN
+10.   PSYS_SRC_BURST_RATE
+11.   PSYS_SRC_BURST_PART_COUNT
+12.   PSYS_SRC_BURST_RADIUS
+13.   PSYS_SRC_BURST_SPEED_MIN
+14.   PSYS_SRC_BURST_SPEED_MAX
+15.   PSYS_SRC_ANGLE_BEGIN
+16.   PSYS_SRC_ANGLE_END
+17.   PSYS_SRC_OMEGA
+18.   PSYS_SRC_ACCEL
+19.   PSYS_PART_MAX_AGE
+20.   PSYS_SRC_MAX_AGE
+21.   PSYS_SRC_TEXTURE
+22.   PSYS_SRC_TARGET_KEY
+
+Once it’s completed, it may look like the following:
+
+Emitter Center 3|259|<0.20,0.20,0.0>|<0.10,0.10,0.0>|<1.0,1.0,1.0>|<1.0,1.0,1.0>|1.0|1.0|2|0.001|11|1.500|0.400|0.400|0.017|0.017|ZERO_VECTOR|<0.0,0.0,-0.030>|1.600|0.0|11ba415c-c626-ecfd-fb63-3af53d29b3ad|
+
+*PSYS_OBJECT_NAME*
+The object name , corresponds to the name given each prim in the Photographer’s Photo Studio, use the edit linked parts and then point to the prim, make a note of the wall name. Then go to the card and find the same line containing that wall name.
+
+*PSYS_PART_FLAGS*
+Various flags controlling the behavior of the particle system. The value may be specified as an integer in decimal or hex format, or by using together (using the | operator) one or more of the following flag constants
+
+*PSYS_START_SCALE*
+Specifies the scale or size of the particles upon emission. Valid values for each direction are 0.04 (0.03125) to 4.0, in meters. Since particles are essentially 2D sprites, the Z component of the vector is ignored and can be set to 0.0.
+
+*PSYS_END_SCALE*
+Specifies the scale or size the particles transition to during their lifetime. Only used if the PSYS_PART_INTERP_SCALE_MASK flag is set.
+
+*PSYS_START_COLOR*
+A unit vector specifying the color of the particles upon emission.
+
+*PSYS_END_COLOR*
+A unit vector specifying the color the particles transition to during their lifetime. Only used if the PSYS_PART_INTERP_COLOR_MASK flag is set.
+
+*PSYS_START_ALPHA*
+Specifies the alpha of the particles upon emission. Valid values are in the range 0.0 to 1.0. Higher values are more opaque; lower ones are more transparent.
+
+*PSYS_END_ALPHA*
+Specifies the alpha the particles transition to during their lifetime. Only used if the PSYS_PART_INTERP_COLOR_MASK flag is set. Valid values are the same as PSYS_PART_START_ALPHA.
+
+*PSYS_SRC_PATTERN*
+Specifies the general emission pattern.
+
+*PSYS_SRC_BURST_RATE*
+Specifies the time interval, in seconds, between "bursts" of particles being emitted. Specifying a value of 0.0 will cause the emission of particles as fast as the viewer can do so.
+
+*PSYS_SRC_BURST_PART_COUNT*
+Specifies the number of particles emitted in each "burst".
+
+*PSYS_SRC_BURST_RADIUS*
+Specifies the distance from the emitter where particles will be created. This rule is ignored when the PSYS_PART_FOLLOW_SRC_MASK flag is set.
+
+*PSYS_SRC_BURST_SPEED_MIN*
+Specifies the minimum value of a random range of values which is selected for each particle in a burst as its initial speed upon emission, in meters per second. Note that the value of this parameter and PSYS_SRC_BURST_SPEED_MAX are internally re-ordered such that this parameter gets the smaller of the two values.
+
+*PSYS_SRC_BURST_SPEED_MAX*
+Specifies the maximum value of a random range of values which is selected for each particle in a burst as its initial speed upon emission, in meters per second. Note that the value of this parameter and PSYS_SRC_BURST_SPEED_MIN are internally re-ordered such that this parameter gets the larger of the two values.
+
+*PSYS_SRC_ANGLE_BEGIN*
+Specifies a half angle, in radians, of a circular or spherical "dimple" or conic section (starting from the emitter facing) within which particles will NOT be emitted. Valid values are the same as for PSYS_SRC_ANGLE_END, though the effects are reversed accordingly. If the pattern is PSYS_SRC_PATTERN_ANGLE, the presentation is a 2D flat circular section. If PSYS_SRC_PATTERN_ANGLE_CONE or PSYS_SRC_PATTERN_ANGLE_CONE_EMPTY is used, the presentation is a 3D spherical section. Note that the value of this parameter and PSYS_SRC_ANGLE_END are internally re-ordered such that this parameter gets the smaller of the two values.
+
+*PSYS_SRC_ANGLE_END*
+Specifies a half angle, in radians, of a circular or spherical "dimple" or conic section (starting from the emitter facing) within which particles will NOT be emitted. Valid values are 0.0, which will result in particles being emitted in a straight line in the direction of the emitter facing, to PI, which will result in particles being emitted in a full circular or spherical arc around the emitter, not including the "dimple" or conic section defined by PSYS_SRC_ANGLE_BEGIN. If the pattern is PSYS_SRC_PATTERN_ANGLE, the presentation is a 2D flat circular section. If PSYS_SRC_PATTERN_ANGLE_CONE or PSYS_SRC_PATTERN_ANGLE_CONE_EMPTY is used, the presentation is a 3D spherical section. Note that the value of this parameter and PSYS_SRC_ANGLE_BEGIN are internally re-ordered such that this parameter gets the larger of the two values.
+
+*PSYS_SRC_OMEGA*
+Specifies the rotational spin of the emitter in radians per second along each axis. This "unsticks" the emitter facing from the prim's positive Z axis and is noticeable in directional presentations. Prim spin (via llTargetOmega) has no effect on emitter spin.
+
+*PSYS_SRC_ACCEL*
+Specifies a directional acceleration vector applied to each particle as it is emitted, in meters per second. Valid values are 0.0 to 100.0 for each direction, as region coordinates.
+
+*PSYS_PART_MAX_AGE*
+Specifies the lifetime of each particle emitted, in seconds. Maximum is 30.0 seconds. During this time, the particle will appear, change appearance and move according to the parameters specified in the other sections, and then disappear.
+
+*PSYS_SRC_MAX_AGE*
+Specifies the length of time, in seconds, that the emitter will operate upon coming into view range (if the particle system is already set) or upon execution of this function (if already in view range). Upon expiration, no more particles will be emitted, except as specified above. Zero will give the particle system an infinite duration.
+
+*PSYS_SRC_TEXTURE*
+Specifies the name of a asset key UUID for a texture.
+
+*PSYS_SRC_TARGET_KEY*
+Specifies the key of a target object, prim, or agent towards which the particles will change course and move. 
+
+Lights Notecard
+The Primitizer consists of 15 emitters.  The card must begin with user friendly name but keep the characters under 24 characters.
+
+Each line of the Light Notecard has the following information.
+
+1.    LIGHT_OBJECT
+2.    LIGHT_STATUS
+3.    LIGHT_COLOR
+4.    LIGHT_LEVEL
+5.    LIGHT_DISTANCE
+6.    LIGHT_FALLOFF
+
+once it’s completed, it may look like the following:
+
+nne_wall|FALSE|<1.00000, 1.00000, 1.00000>|1.000000|10.0000000.750000
+
+Each of the items in the sound notecard must be separated by the symbol "|"
+
+*LIGHT_OBJECT*
+The object name , corresponds to the name given each prim in the Primitizer, use the edit linked parts and then point to the prim, make a note of the wall name. Then go to the card and find the same line containing that wall name.
+
+*LIGHT_STATUS*
+Toggles light property on or off (integer) values 0 = off 1 = on
+
+*LIGHT_COLOR*
+Below are the basic colors, and included with the Primitizer package is a full list of colors in SL format.
+
+Red, Green Blue
+Number may go between 0.1 to 0.9 for each of the three colors
+white = <1.0, 1.0, 1.0>;
+gray = <0.5, 0.5, 0.5>;
+black = <0.0, 0.0, 0.0>;
+red = <1.0, 0.0, 0.0>;
+green = <0.0, 1.0, 0.0>;
+blue = <0.0, 0.0, 1.0>;
+yellow = <1.0, 1.0, 0.0>;
+cyan = <0.0, 1.0, 1.0>;
+magenta = <1.0, 0.0, 1.0>;
+
+*LIGHT_LEVEL*
+level –  ranges from 0.0 to 1.0
+
+*LIGHT_DISTANCE*
+ distance – ranges from 0.1 to 10.0
+
+*LIGHT_FALLOFF*
+ falloff – ranges from 0.01 to 1.0
+ 
+Scene Creation
+Depending on what you plan on using in your primitizer building your scene will vary some people make their own furniture, and other items for their scenes, for their own use, or for sale.
+Others use free items they have gathered around SL, which have copy/mod permissions to build their scenes.
+
+The Primitizer is perfect for personal homes, clubs, inns and hotels, skyboxes, anywhere you need to rez furniture, The wonderful thing is you have multiple scenes stored in the primitizer, and change when ever you want, instead of having to keep dragging things from inventory.
+Or for who don’t want to use all their prim limits on a home and 5 rooms, why not have one room, and 5 scenes and a nice glove.  There are places to purchase copy/mod pose balls, for your scenes too.  
+
+Some tips when building items for your scenes.
+1.    Try and make as few object groupings as possible, one large linked object make of other smaller prims, will load faster then 10 smaller objects located around the box.
+2.    When placing objects keep in mind the location of the door
+3.    When making an object that is of an odd shape such as a torus, you may want to create a flat box prim below it, and link to that, it will save headaches later one.
+
+Glove Creation
+Depending on what you plan on building with your primitizer, Glove will vary some people make their own gloves, and other buildings for their gloves, for their own use, or for sale.
+Others use free items they have gathered around SL, which have copy/mod permissions to build their scenes.
+
+The Primitizer is perfect for personal homes, clubs, inns and hotels, skyboxes, anywhere you need to rez furniture, The wonderful thing is you have multiple scenes stored in the primitizer, and change when ever you want, instead of having to keep dragging things from inventory.
+Or for who don’t want to use all their prim limits on a home and 5 rooms, why not have one room, and 5 scenes and a nice glove.  There are places to purchase copy/mod pose balls, for your scenes too.  
+
+Some tips when building gloves.
+1.    Try and make as few object groupings as possible, one large linked object make of other smaller prims, will load faster then 10 smaller objects located around the box.
+2.    When placing objects keep in mind the location of the door
+3.    When making an object that is of an odd shape such as a torus, you may want to create a flat box prim below it, and link to that, it will save headaches later one.
+
+Packaging
+When you decide to package the item for sale.  Make sure that you give copy rights to the next owner, or they won’t be able to use it.  It is also helpful to give full permissions on the tex and obj cards.  Also ensure the name you give the object is user friendly, but also, only contains letters, numbers _ or -.
+
+If you have any questions in building please feel free to contact Revolution Perenti, and do join the Dazzle Software Group you will receive updates of this manual and the scripts as they come out.  If you have any suggestions for this manual please feel free to let me know.
+
+Happy Building
+
+Revolution Perenti}
+ 

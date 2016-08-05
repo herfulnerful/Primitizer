@@ -1,0 +1,60 @@
+// ********** SIMPLE DIALOG MODULE ********** //
+// By Nargus Asturias
+// Version 1.86
+//
+// Support only one dialog at a time. DO NOT request multiple dialog at once!
+// Use of provided functions are recommented. Instruction here are for hardcore programmers only!
+//
+// Request: Send MessageLinked to the script. There are 3 dialog modes:
+//      LINK_INTERFACE_DIALOG               : Normal dialog with message and buttons
+//      LINK_INTERFACE_NUMERIC  : A dialog with buttons can be used to adjust numeric value
+//      LINK_INTERFACE_TEXTBOX        : A dialog with a text input field
+//      LINK_INTERFACE_NOTIFY         : Just a simple notification dialog. No return value and no buttons.
+//
+// Send MessageLinked with code LINK_INTERFACE_RESHOW to force active dialog to reappear.
+// Send MessageLinked with code LINK_INTERFACE_CANCEL to force cancel active dialog
+//
+// If a LINK_INTERFACE_DIALOG is requested with more than 12 buttons, multi-pages dialog is used to show the buttons.
+//
+// [ FOR LINK_INTERFACE_DIALOG ]
+// MessageLinked Format:
+//      String part: List dumped into string, each entry seperated by '||'
+//          Field 1:    Dialog message (512 bytes maximum)
+//          Field 2:    Time-out data (integer)
+//          Field 3-4:  Button#1 and return value pair
+//          Field 5-6:  Button#2 and return value pair
+//          And go on...
+//      Key part: Key of AV who attend this dialog
+//
+// Response: MessageLinked to the prim that requested dialog (but no where else)
+//      num == LINK_INTERFACE_RESPONSE:   AV click on a button. The buttons value returned as a string
+//      num == LINK_INTERFACE_TIMEOUT:    Dialog timeout.
+//
+// [ FOR LINK_INTERFACE_TEXTBOX ]
+// MessageLinked Format:
+//      String part: List dumped into string, each entry seperated by '||'
+//          Field 1:    Dialog message (512 bytes maximum)
+//          Field 2:    Time-out data (integer)
+//          Field 3:    Return string prefix. If empty, only user's input will be returned.
+//
+// [ FOR LINK_INTERFACE_NUMERIC ]
+// MessageLinked Format:
+//      String part: List dumped into string, each entry seperated by '||'
+//          Field 1:    Dialog message (512 bytes maximum)
+//                          Put {VALUE} where you want the current value to be displayed)
+//          Field 2:    Time-out data (integer)
+//          Field 3:    Most significant value (ie. 100, for +/-100)
+//          Field 4:    String-casted numeric value to be adjusted
+//          Field 5:    2nd most significant value (ie. 10, for +/-10)
+//          Field 6:    Use '1' to enable "+/-" button, '0' otherwise.
+//          Field 7:    3nd significant value (ie. 1, for +/-1)
+//          Field 8:    Use '1' for integer, or '0' for float
+//          Field 9:    Least significant value (ie. 0.1, for +/-0.1)
+//          Field 10:   Reserved. Not used.
+//      Key part: Key of AV who attend this dialog
+//
+// Response: MessageLinked to the prim that requested dialog (but no where else)
+//      num == LINK_INTERFACE_RESPONSE:   OK or Cancel button is clicked. The final value returned as string.
+//      num == LINK_INTERFACE_TIMEOUT:    Dialog timeout.
+//
+// ******************************************* //
