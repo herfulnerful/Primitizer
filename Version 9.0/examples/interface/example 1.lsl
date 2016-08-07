@@ -1,5 +1,3 @@
-// ********** DIALOG FUNCTIONS **********
-// Dialog constants
 integer LINK_INTERFACE_DEBUG = 17000;
 
 integer LINK_INTERFACE_ENABLE_DEBUG = 17001;
@@ -77,75 +75,53 @@ dialog_clear()
 {
     llMessageLinked(LINK_THIS, LINK_INTERFACE_CLEAR, "", NULL_KEY);
 }
-// ********** END DIALOG FUNCTIONS **********
 
-string TEXTURE_DIALOG;
 
-list TEXTURE_BUTTONS = [];
-list TEXTURE_RETURNS = [];
+list NUMBERS_BUTTONS = [];
+list NUMBERS_RETURNS = [];
 
-string INVENTORY_TEXTURE_NAME; // Get Texture Name
-
-initTextures()
+default
 {
-// Please me reminded that Nargus Dialog script autometicly add Back/Next buttons for you.
-// Optimised dialog generator script. Much more memory efficient than usage of Dialog+Menus control function
-
-    llOwnerSay("Inventory change detected; re-initializing...");
-
-    dialog_clear();
-
-    TEXTURE_DIALOG = "Click BACK/NEXT to change page.\n" +
-        "Click a texture button to choose.";
-
-    integer count = llGetInventoryNumber(INVENTORY_TEXTURE);
-    integer index;
-    for(index = 0; index<count; ++index)
+    state_entry()
     {
-        INVENTORY_TEXTURE_NAME = llGetInventoryName(INVENTORY_TEXTURE, index);
-        
-        llSay(0, "DEBUG TEXTURE_NAME:" + INVENTORY_TEXTURE_NAME);
-        TEXTURE_BUTTONS += [llGetSubString(INVENTORY_TEXTURE_NAME, 0, 12)];
-        TEXTURE_RETURNS += [INVENTORY_TEXTURE_NAME];
-		llSleep(0.1);
-    }
-        add_menu("MainMenu",
-
-            TEXTURE_DIALOG, // Dialog Messages
-
-            TEXTURE_BUTTONS, // Dialog Buttons
-
-            TEXTURE_RETURNS, // Dialog Returns
-
-            DIALOG_TIMEOUT // Dialog Timeout
-        );
-    //texturesDialog += DIALOG_SEPERATOR + "CLOSE" + DIALOG_SEPERATOR;
-
-    llOwnerSay("Initializing completed.");
-}
- 
-default{
-    state_entry(){
-        initTextures();
-    }
-    
-    changed(integer changes){
-        if(changes & CHANGED_INVENTORY) llResetScript();
-    }
- 
-    link_message(integer sender_num, integer num, string str, key id){
-        if(num == LINK_INTERFACE_RESPONSE)
+        integer count = 100;
+        integer index = 0;
+        for(index = 0; index<count; ++index)
         {
-            llSay(0, str);
-            if(llGetInventoryType(str) == INVENTORY_TEXTURE) llSetTexture(str, ALL_SIDES);
+            NUMBERS_BUTTONS += [index];
+            NUMBERS_RETURNS += [index];
+        }
+        add_menu("MainMenu",
+ 
+            // Dialog message here
+            "Messages go here",
+ 
+            // List of dialog buttons
+            NUMBERS_BUTTONS,
+ 
+            // List of return value from the buttons, in same order
+            // Note that this value do not need to be the same as button texts
+            NUMBERS_RETURNS,
+            
+            DIALOG_TIMEOUT
+        );
+    }
+
+    link_message(integer sender_num, integer num, string str, key id)
+    {
+        if(num == LINK_INTERFACE_TIMEOUT)
+        {
+            llOwnerSay("Menu time-out. Please try again.");
+            state default;
+        }
+        else if(num == LINK_INTERFACE_RESPONSE)
+        {
+            llWhisper(0, str);
         }
     }
  
     touch_start(integer num_detected)
     {
-        llSay(0, "DEBUG TEXTURE_BUTTONS:" + llDumpList2String(TEXTURE_BUTTONS, DIALOG_SEPERATOR));
-        llSay(0, "DEBUG TEXTURE_RETURNS:" + llDumpList2String(TEXTURE_RETURNS, DIALOG_SEPERATOR));
         dialog_show("MainMenu", llDetectedOwner(0));
-        //llMessageLinked(LINK_THIS, lnkDialog, texturesDialog, llDetectedOwner(0));
     }
 }
