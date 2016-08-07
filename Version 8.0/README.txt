@@ -1,0 +1,1 @@
+This version is deprecated and replaced with upcoming version 9 due to major issues in version 8 and complete overhaul of the code base 

@@ -1,23 +1,51 @@
-// Constants
+// Enable/Disable Debug Mode
+integer LINK_INTERFACE_DEBUG = 17000; // Send message too LINK_INTERFACE_ENABLE_DEBUG or LINK_INTERFACE_DISABLE_DEBUG based on toggle state
 
-//
-integer LINK_INTERFACE_DEBUG = 17000;
+// Debug Mode Enabled
+integer LINK_INTERFACE_ENABLE_DEBUG = 17001;
 
+// Debug Mode Disabled
+integer LINK_INTERFACE_DISABLE_DEBUG = 17002;
+
+// Add Menus To Interface API
 integer LINK_INTERFACE_ADD = 15002;
+
+// Cancel Dialog Request
 integer LINK_INTERFACE_CANCEL = 14012;
+
 // Cancel is hit for LINK_INTERFACE_NUMERIC
-integer LINK_INTERFACE_CANCELLED = 14006;
+integer LINK_INTERFACE_CANCELLED = 14006; // Message sent from LINK_INTERFACE_CANCEL to link message to be used in other scripts.
+
+// Clear Dialog Request
 integer LINK_INTERFACE_CLEAR = 15001;
+
+// Display Dialog Interface
 integer LINK_INTERFACE_DIALOG = 14001;
+
+// Notify Dialog Type
 integer LINK_INTERFACE_NOTIFY = 14004;
+
+// Dialog Not Found
 integer LINK_INTERFACE_NOT_FOUND = 15010;
+
+// Display numeric interface
 integer LINK_INTERFACE_NUMERIC = 14005;
+
+// Reshow last dialog displayed
 integer LINK_INTERFACE_RESHOW = 14011;
+
 // A button is hit, or OK is hit for LINK_INTERFACE_NUMERIC
 integer LINK_INTERFACE_RESPONSE = 14002;
+
+// Display Dialog
 integer LINK_INTERFACE_SHOW = 15003;
+
+// Play Sound When Dialog Button Touched
 integer LINK_INTERFACE_SOUND = 15021;
+
+// Display textbox interface
 integer LINK_INTERFACE_TEXTBOX = 14007;
+
 // No button is hit, or Ignore is hit
 integer LINK_INTERFACE_TIMEOUT = 14003;
 
@@ -82,8 +110,6 @@ integer REQUESTED_CHANNEL = -1;
 string REQUESTED_MESSAGE;
 key REQUESTED_KEY;
 
-// ********** V9 Interface Updated Variables ********** //
-
 // the maximum number of buttons that can be displayed in the dialog at one time
 integer DIALOG_MAX_BUTTONS = 12;
 
@@ -98,8 +124,8 @@ integer DIALOG_CYCLE_INDEX = 0;
 // 1 = OWNER
 // 2 = PUBLIC
 // 3 = DEBUG_CHANNEL
-integer DEBUG_MODE = 1;
-
+integer DEBUG_MODE = 0;
+integer DEBUG_TOGGLE;
 log(string message)
 {
 	if(DEBUG_MODE == 1 ) llOwnerSay(message);
@@ -208,60 +234,64 @@ string string_replace(string str, string search, string replace)
 // ********** Dialog Functions **********
 integer create_dialog(key id, string message, list buttons)
 {
-    integer channel = -((integer)llFrand(8388608))*(255) - (integer)llFrand(8388608) - 11;
+    integer channel = ( -1 * (integer)("0x"+llGetSubString((string)llGetKey(),-5,-1)) );
 
     llListenRemove(LISTEN_HANDLE);
     LISTEN_HANDLE = llListen(channel, "", id, "");
     if(DIALOG_ITEMS_COUNT > 0)
+	{
         llDialog(id, message, buttons, channel);
-    else llTextBox(id, message, channel);
- 
+    }
+	else
+	{
+		llTextBox(id, message, channel);
+	}
     return channel;
 }
 
 // Function: numeric_dialog
 // Generate numeric adjustment dialog which adjustment values are in given list.
-// If useNegative is TRUE, "+/-" button will be available.
-list numeric_dialog(list adjustValues, integer useNegative)
+// If use_negative is TRUE, "+/-" button will be available.
+list numeric_dialog(list adjust_values, integer use_negative)
 {
-    list dialogControlButtons;
-    list positiveButtons;
-    list negativeButtons;
-    list additionButtons;
+    list DIALOG_CONTROL_BUTTONS;
+    list DIALOG_POSITIVE_BUTTONS;
+    list DIALOG_NEGATIVE_BUTTONS;
+    list DIALOG_ADDITION_BUTTONS;
  
-    dialogControlButtons = [BUTTON_OK, BUTTON_CANCEL];
+    DIALOG_CONTROL_BUTTONS = [BUTTON_OK, BUTTON_CANCEL];
  
     // Config adjustment buttons
-    integer count = llGetListLength(adjustValues);
-    integer index;
+    integer count = llGetListLength(adjust_values);
+    integer index = 0;
     for(index = 0; (index < count) && (index < 3); index++)
 	{
-        string sValue = llList2String(adjustValues, index);
+        string numeric_value = llList2String(adjust_values, index);
  
-        if((float)sValue != 0)
+        if((float)numeric_value != 0)
 		{
-            positiveButtons += ["+" + sValue];
-            negativeButtons += ["-" + sValue];
+            DIALOG_POSITIVE_BUTTONS += ["+" + numeric_value];
+            DIALOG_NEGATIVE_BUTTONS += ["-" + numeric_value];
         }
     }
  
     // Check positive/negative button
-    if(useNegative)
-        additionButtons = ["+/-"];
-    else additionButtons = [];
+    if(use_negative)
+        DIALOG_ADDITION_BUTTONS = ["+/-"];
+    else DIALOG_ADDITION_BUTTONS = [];
  
     // If there is fourth adjustment button
     if(count > 3)
 	{
-        if(llGetListLength(additionButtons) == 0) additionButtons = [" "];
+        if(llGetListLength(DIALOG_ADDITION_BUTTONS) == 0) DIALOG_ADDITION_BUTTONS = [" "];
  
-        string sValue = llList2String(adjustValues, index);
-        additionButtons += ["+" + sValue, "-" + sValue];
+        string numeric_value = llList2String(adjust_values, index);
+        DIALOG_ADDITION_BUTTONS += ["+" + numeric_value, "-" + numeric_value];
     }
-	else if(additionButtons != []) additionButtons += [" ", " "];
+	else if(DIALOG_ADDITION_BUTTONS != []) DIALOG_ADDITION_BUTTONS += [" ", " "];
  
     // Return list dialog buttons
-    return additionButtons + negativeButtons + positiveButtons + dialogControlButtons;
+    return DIALOG_ADDITION_BUTTONS + DIALOG_NEGATIVE_BUTTONS + DIALOG_POSITIVE_BUTTONS + DIALOG_CONTROL_BUTTONS;
 }
 
 message_linked(integer num, string str, key id)
@@ -289,7 +319,7 @@ checkDialogRequest(integer sender_num, integer num, string str, key id)
         if(DIALOG_TIMEOUT > 7200) DIALOG_TIMEOUT = 7200;
  
         // Generate buttons list
-        integer i=2;
+        integer i = 2;
         integer count = llGetListLength(data);
         if(count > 2)
 		{
@@ -346,12 +376,22 @@ checkDialogRequest(integer sender_num, integer num, string str, key id)
     }
 	else if(num == LINK_INTERFACE_DEBUG)
 	{
-		log("DEBUG:LINK_INTERFACE_DEBUG");
-		log("DEBUG:DIALOG_MENU_MESSAGE" + DIALOG_MENU_MESSAGE);
-		log("DEBUG:DIALOG_MENU_BUTTONS" + llDumpList2String(DIALOG_MENU_BUTTONS, DIALOG_SEPERATOR) );
-		log("DEBUG:DIALOG_MENU_COMMANDS" + llDumpList2String(DIALOG_MENU_COMMANDS, DIALOG_SEPERATOR) );
-		log("DEBUG:DIALOG_MENU_NAMES" + llDumpList2String(DIALOG_MENU_NAMES, DIALOG_SEPERATOR) );
-		log("DEBUG:DIALOG_MENU_RETURNS" + llDumpList2String(DIALOG_MENU_RETURNS, DIALOG_SEPERATOR) );
+		DEBUG_TOGGLE = !DEBUG_TOGGLE;
+		if(TRUE == DEBUG_TOGGLE)
+		{
+			message_linked(LINK_INTERFACE_ENABLE_DEBUG, "", AVATAR_UUID);
+			llMessageLinked(LINK_THIS, LINK_INTERFACE_ENABLE_DEBUG, "", id);
+			//log("DEBUG:LINK_INTERFACE_DEBUG");
+			//log("DEBUG:DIALOG_MENU_MESSAGE" + DIALOG_MENU_MESSAGE);
+			//log("DEBUG:DIALOG_MENU_BUTTONS" + llDumpList2String(DIALOG_MENU_BUTTONS, DIALOG_SEPERATOR) );
+			//log("DEBUG:DIALOG_MENU_COMMANDS" + llDumpList2String(DIALOG_MENU_COMMANDS, DIALOG_SEPERATOR) );
+			//log("DEBUG:DIALOG_MENU_NAMES" + llDumpList2String(DIALOG_MENU_NAMES, DIALOG_SEPERATOR) );
+			//log("DEBUG:DIALOG_MENU_RETURNS" + llDumpList2String(DIALOG_MENU_RETURNS, DIALOG_SEPERATOR) );
+		}
+		else
+		{
+			llMessageLinked(LINK_THIS, LINK_INTERFACE_DISABLE_DEBUG, "", id);
+		}
 	}
 	else checkMenuRequest(sender_num, num, str, id);
 }
@@ -402,7 +442,7 @@ integer show_dialog(string name, key id)
     // Load menu command and execute
     string packed_message = llList2String(DIALOG_MENU_COMMANDS, index);
  
-    if(SOUND_UUID != NULL_KEY) llPlaySound(SOUND_UUID, SOUND_VOLUME);
+    if(SOUND_UUID != NULL_KEY) llTriggerSound(SOUND_UUID, SOUND_VOLUME); 
     llMessageLinked(LINK_THIS, LINK_INTERFACE_DIALOG, packed_message, id);
     return TRUE;
 }
@@ -431,7 +471,6 @@ checkMenuRequest(integer sender_num, integer num, string str, key id)
 	{
         list data = llParseString2List(str, [DIALOG_SEPERATOR], []);
 		log("DEBUG:data" + llDumpList2String(data, DIALOG_SEPERATOR));
-        // @todo remove cast typing
         DIALOG_MENU_MESSAGE = llList2String(data, 0);
 		DIALOG_TIMEOUT = llList2Integer(data, 1);
         DIALOG_MENU_BUTTONS = [];
@@ -440,15 +479,13 @@ checkMenuRequest(integer sender_num, integer num, string str, key id)
 		log("DEBUG:DIALOG_TIMEOUT" + (string)DIALOG_TIMEOUT);
 		log("DEBUG:DIALOG_MENU_BUTTONS" + llDumpList2String(DIALOG_MENU_BUTTONS, DIALOG_SEPERATOR));
 		log("DEBUG:DIALOG_MENU_RETURNS" + llDumpList2String(DIALOG_MENU_RETURNS, DIALOG_SEPERATOR));
-        integer i;
+        integer index = 2;
         integer count = llGetListLength(data);
-        for(i=2; i<count;i) //added last line i for opensim compile issue
-		//do
+        for(index = 2; index < count; index)
 		{
-            DIALOG_MENU_BUTTONS += [llList2String(data, i++)];
-            DIALOG_MENU_RETURNS += [llList2String(data, i++)];
+            DIALOG_MENU_BUTTONS += [llList2String(data, index++)];
+            DIALOG_MENU_RETURNS += [llList2String(data, index++)];
         }
-		//while (i < count);
  
         add_dialog((string)id, DIALOG_MENU_MESSAGE, DIALOG_MENU_BUTTONS, DIALOG_MENU_RETURNS, DIALOG_TIMEOUT);
  
@@ -460,8 +497,11 @@ checkMenuRequest(integer sender_num, integer num, string str, key id)
     }
 	else if(num == LINK_INTERFACE_SOUND)
 	{
-        SOUND_UUID = str;
-        SOUND_VOLUME = (float)((string)id);
+		list data = llParseString2List(str, [DIALOG_SEPERATOR], []);
+        SOUND_UUID = llList2String(data, 0);
+        SOUND_VOLUME = llList2Float(data, 1);
+		llSay(0, "DEBUG SOUND_UUID = " + SOUND_UUID);
+		llSay(0, "DEBUG SOUND_VOLUME = " + (string)SOUND_VOLUME);
     }
 }
  
@@ -526,6 +566,7 @@ state Dialog
         }
 		else if(num == LINK_INTERFACE_CANCEL)
 		{
+			message_linked(LINK_INTERFACE_CANCELLED, "", AVATAR_UUID);
 			state default;
 		}
         else
@@ -601,6 +642,7 @@ state Textbox
         }
 		else if(num == LINK_INTERFACE_CANCEL)
 		{
+			message_linked(LINK_INTERFACE_CANCELLED, "", AVATAR_UUID);
 			state default;
 		}
         else
@@ -632,12 +674,12 @@ state Numeric
         DIALOG_NUMERIC_INTEGER = llList2Integer(DIALOG_MENU_RETURNS, 2);
         DIALOG_MENU_BUTTONS = numeric_dialog(DIALOG_MENU_BUTTONS, llList2Integer(DIALOG_MENU_RETURNS, 1));
  
-        string vMessage;
+        string DIALOG_MESSAGE_FORMAT;
         if(DIALOG_NUMERIC_INTEGER)
-            vMessage = string_replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)((integer)DIALOG_NUMERIC_VALUE));
-        else vMessage = string_replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
+            DIALOG_MESSAGE_FORMAT = string_replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)((integer)DIALOG_NUMERIC_VALUE));
+        else DIALOG_MESSAGE_FORMAT = string_replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
 
-        LISTEN_CHANNEL = create_dialog(AVATAR_UUID, vMessage, cycle_dialog(DIALOG_MENU_BUTTONS, ""));
+        LISTEN_CHANNEL = create_dialog(AVATAR_UUID, DIALOG_MESSAGE_FORMAT, cycle_dialog(DIALOG_MENU_BUTTONS, ""));
 		//llDialog(AVATAR_UUID, DIALOG_MENU_MESSAGE, cycle_dialog(DIALOG_MENU_BUTTONS, ""), LISTEN_CHANNEL);
         llSetTimerEvent(DIALOG_TIMEOUT);
     }
@@ -666,9 +708,11 @@ state Numeric
             //llDialog(AVATAR_UUID, DIALOG_MENU_MESSAGE, cycle_dialog(DIALOG_MENU_BUTTONS, ""), LISTEN_CHANNEL);
 			llSetTimerEvent(DIALOG_TIMEOUT);
         }
-		else if(num == LINK_INTERFACE_CANCEL) state default;
- 
-        //else checkDialogRequest(sender_num, num, str, id);
+		else if(num == LINK_INTERFACE_CANCEL)
+		{
+			message_linked(LINK_INTERFACE_CANCELLED, "", AVATAR_UUID);
+			state default;
+		}
 		else checkDialogRequest(sender_num, num, str, id);
     }
  
@@ -680,13 +724,11 @@ state Numeric
         if(msg == BUTTON_OK)
 		{
 			message_linked(LINK_INTERFACE_RESPONSE, (string)DIALOG_NUMERIC_VALUE, AVATAR_UUID);
-            //llMessageLinked(LINK_THIS, LINK_INTERFACE_RESPONSE, (string)DIALOG_NUMERIC_VALUE, AVATAR_UUID);
             state default;
         }
 		else if(msg == BUTTON_CANCEL)
 		{
 			message_linked(LINK_INTERFACE_CANCELLED, (string)DIALOG_NUMERIC_VALUE, AVATAR_UUID);
-            llMessageLinked(LINK_THIS, LINK_INTERFACE_CANCELLED, (string)DIALOG_NUMERIC_VALUE, AVATAR_UUID);
             state default;
  
         // Value adjustment button is hit
@@ -699,11 +741,11 @@ state Numeric
             DIALOG_NUMERIC_VALUE -= (float)llDeleteSubString(msg, 0, 0);
  
         // Spawn another dialog if no OK nor Cancel is hit
-        string vMessage;
+        string DIALOG_MESSAGE_FORMAT;
         if(DIALOG_NUMERIC_INTEGER)
-			vMessage = string_replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)((integer)DIALOG_NUMERIC_VALUE));
-		else vMessage = string_replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
-        LISTEN_CHANNEL = create_dialog(AVATAR_UUID, vMessage, cycle_dialog(DIALOG_MENU_BUTTONS, ""));
+			DIALOG_MESSAGE_FORMAT = string_replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)((integer)DIALOG_NUMERIC_VALUE));
+		else DIALOG_MESSAGE_FORMAT = string_replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
+        LISTEN_CHANNEL = create_dialog(AVATAR_UUID, DIALOG_MESSAGE_FORMAT, cycle_dialog(DIALOG_MENU_BUTTONS, ""));
 		//llDialog(AVATAR_UUID, DIALOG_MENU_MESSAGE, cycle_dialog(DIALOG_MENU_BUTTONS, ""), LISTEN_CHANNEL);
         llSetTimerEvent(DIALOG_TIMEOUT);
    }
