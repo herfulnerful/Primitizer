@@ -68,7 +68,7 @@ string DIALOG_MENU_MESSAGE;
 list DIALOG_MENU_BUTTONS = [];
 
 // List Of Packed Menus Command, In Order Of DIALOG_MENU_ID_NAMES
-list DIALOG_MENU_COMMANDS = [];
+list DIALOG_MENU_COMMANDS = []; //DIALOG_MENU_MESSAGE||DIALOG_TIMEOUT||DIALOG_MENU_BUTTONS||DIALOG_MENU_RETURNS
 
 // Define A List Containing All The Possible Menu Names
 list DIALOG_MENU_ID_NAMES = [];
@@ -142,8 +142,6 @@ list sort(list buttons)
 list cycle(list items, string direction)
 {
     list DIALOG_ITEMS_SUBLIST = [];
-
-    DIALOG_ITEMS_COUNT = llGetListLength(items);
 
     if(direction == BUTTON_BACK)
     {
@@ -277,16 +275,19 @@ response(integer sender_num, integer num, string str, key id)
         integer count = llGetListLength(data);
         if(count > 2)
         {
+			DIALOG_ITEMS_COUNT = 0;
             for(index = 2; index<count;index)
             {
                 DIALOG_MENU_BUTTONS += [llList2String(data, index++)];
                 DIALOG_MENU_RETURNS += [llList2String(data, index++)];
+				++DIALOG_ITEMS_COUNT;
             }
         }
         else
         {
             DIALOG_MENU_BUTTONS = [BUTTON_OK];
             DIALOG_MENU_RETURNS = [];
+			DIALOG_ITEMS_COUNT = 1;
         }
         if(num == LINK_INTERFACE_NOTIFY)
         {
@@ -311,7 +312,8 @@ response(integer sender_num, integer num, string str, key id)
         REQUESTED_LINK = sender_num;
         DIALOG_MENU_BUTTONS = [];
         DIALOG_MENU_RETURNS = [llList2String(data, 2)];
-
+		DIALOG_ITEMS_COUNT = 0;
+		
         if(DIALOG_TIMEOUT > 7200) DIALOG_TIMEOUT = 7200;
 
         REDIRECT_STATE = "Textbox";
@@ -322,15 +324,6 @@ response(integer sender_num, integer num, string str, key id)
         DEBUG_TOGGLE = !DEBUG_TOGGLE;
         if(TRUE == DEBUG_TOGGLE)
         {
-            integer free_memory = llGetFreeMemory();
-            llOwnerSay((string)free_memory + " bytes of free memory available for allocation.");
-            integer used_memory = llGetUsedMemory();
-            llOwnerSay((string)used_memory + " bytes of memory currently used.");
-
-            llOwnerSay("DIALOG_MENU_BUTTONS" + llDumpList2String(DIALOG_MENU_BUTTONS, "#"));
-            llOwnerSay("DIALOG_MENU_RETURNS" + llDumpList2String(DIALOG_MENU_RETURNS, "#"));
-            llOwnerSay("DIALOG_MENU_COMMANDS" + llDumpList2String(DIALOG_MENU_COMMANDS, "#"));
-            llOwnerSay("DIALOG_MENU_ID_NAMES" + llDumpList2String(DIALOG_MENU_ID_NAMES, "#"));
             llMessageLinked(LINK_THIS, LINK_INTERFACE_ENABLE_DEBUG, "", id);
         }
         else
@@ -408,7 +401,8 @@ request(integer sender_num, integer num, string str, key id)
     }
 	else if(num == LINK_INTERFACE_ADD)
     {
-		if(DIALOG_FREE_MEMORY > 2048)
+		integer DIALOG_DATA_COUNT = ((llGetListLength(data) - 2) / 2);
+		if(DIALOG_DATA_COUNT < 80)
 		{
 			DIALOG_MENU_MESSAGE = llList2String(data, 0);
 			DIALOG_TIMEOUT = llList2Integer(data, 1);
@@ -423,7 +417,7 @@ request(integer sender_num, integer num, string str, key id)
 			}
 			add_dialog((string)id, DIALOG_MENU_MESSAGE, DIALOG_MENU_BUTTONS, DIALOG_MENU_RETURNS, DIALOG_TIMEOUT);
 		}
-		else llSay(0, "Out Of Memory:");
+		else llSay(0, "Too Many Buttons, Try Reduce the Menu Size");
     }
     else if(num == LINK_INTERFACE_SHOW)
     {
@@ -441,7 +435,6 @@ default
 {
     state_entry()
     {
-        DIALOG_FREE_MEMORY = llGetFreeMemory();
         if(REQUESTED_CHANNEL > 0) llMessageLinked(REQUESTED_LINK, REQUESTED_CHANNEL, REQUESTED_MESSAGE, REQUESTED_KEY);
     }
 
@@ -466,7 +459,6 @@ state Dialog
 {
     state_entry()
     {
-        DIALOG_FREE_MEMORY = llGetFreeMemory();
         REQUESTED_CHANNEL = -1;
         LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_MENU_MESSAGE, cycle(DIALOG_MENU_BUTTONS, ""));
         llSetTimerEvent(DIALOG_TIMEOUT);
@@ -538,7 +530,6 @@ state Textbox
 {
     state_entry()
     {
-        DIALOG_FREE_MEMORY = llGetFreeMemory();
         REQUESTED_CHANNEL = -1;
         LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_MENU_MESSAGE, cycle(DIALOG_MENU_BUTTONS, ""));
         llSetTimerEvent(DIALOG_TIMEOUT);
@@ -594,7 +585,6 @@ state Numeric
 {
     state_entry()
     {
-        DIALOG_FREE_MEMORY = llGetFreeMemory();
         REQUESTED_CHANNEL = -1;
 
         DIALOG_NUMERIC_VALUE = llList2Float(DIALOG_MENU_RETURNS, 0);
