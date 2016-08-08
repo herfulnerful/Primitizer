@@ -86,11 +86,14 @@ default
     {
         integer count = 100;
         integer index = 0;
-        for(index = 0; index<count; ++index)
+        for(index = 0; index<count; index++)
         {
             NUMBERS_BUTTONS += [index];
             NUMBERS_RETURNS += [index];
         }
+
+		dialog_clear(); // Clear Lists
+
         add_menu("MainMenu",
  
             // Dialog message here

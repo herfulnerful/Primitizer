@@ -231,8 +231,7 @@ list cycle(list items, string direction)
 // Replace all occurrences of the search string with the replacement string
 string replace(string str, string search, string replace)
 {
-    return llDumpList2String(llParseStringKeepNulls((str = "") + str, [search], []), replace);
-    //return osReplaceString(str, search, replace, -1, 0);
+    return osReplaceString(str, search, replace, -1, 0);
 }
 
 integer dialog(key id, string message, list buttons)
