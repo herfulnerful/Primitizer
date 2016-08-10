@@ -49,9 +49,6 @@ integer LINK_INTERFACE_TEXTBOX = 14007;
 // No Button Is Hit, Or Ignore Is Hit
 integer LINK_INTERFACE_TIMEOUT = 14003;
 
-// Define Free Memory
-integer DIALOG_FREE_MEMORY;
-
 // Define A Channel For Listening
 integer LISTEN_CHANNEL;
 
@@ -92,16 +89,12 @@ key AVATAR_UUID;
 string BUTTON_BACK = "◄ Back";
 string BUTTON_NEXT = "Next ►";
 string BUTTON_OK = "OK ✔";
-string BUTTON_CANCEL = "Cancel ✘";
 
 // Previous Called Menu Index
 integer DIALOG_PREVIOUS_INDEX = 0;
 
 // Returns Numeric Value Result
-float DIALOG_NUMERIC_VALUE;
-
-// Use Integer Instead Of Floats
-integer DIALOG_NUMERIC_INTEGER;
+integer DIALOG_NUMERIC_VALUE;
 
 // Dialog Numeric Display Format
 string DIALOG_NUMERIC_FORMAT;
@@ -133,10 +126,28 @@ integer DIALOG_CYCLE_INDEX = 0;
 // Toggle Debug Mode On/Off
 integer DEBUG_TOGGLE;
 
+// new 0.9.8
+integer NUMERIC_TOGGLE;
+
+string Sign = "+";
+string SignInput = " ";
+
 list sort(list buttons)
 {
     return llList2List(buttons, -3, -1) + llList2List(buttons, -6, -4) +
         llList2List(buttons, -9, -7) + llList2List(buttons, -12, -10);
+}
+
+string BUTTON_ADDITION = "+/-";
+
+
+
+invert()
+{
+    if(Sign == "+")
+        Sign = "-";
+    else
+        Sign = "+";
 }
 
 list cycle(list items, string direction)
@@ -210,45 +221,6 @@ integer dialog(key id, string message, list buttons)
     return channel;
 }
 
-list numeric_dialog(list adjust_values, integer use_negative)
-{
-    list DIALOG_CONTROL_BUTTONS;
-    list DIALOG_POSITIVE_BUTTONS;
-    list DIALOG_NEGATIVE_BUTTONS;
-    list DIALOG_ADDITION_BUTTONS;
-    string DIALOG_NUMERIC_ADJUST_VALUE;
-
-    DIALOG_CONTROL_BUTTONS = [BUTTON_OK, BUTTON_CANCEL];
-
-    integer count = llGetListLength(adjust_values);
-    integer index = 0;
-    for(index = 0; (index < count) && (index < 3); index++)
-    {
-        DIALOG_NUMERIC_ADJUST_VALUE = llList2String(adjust_values, index);
-
-        if((float)DIALOG_NUMERIC_ADJUST_VALUE != 0)
-        {
-            DIALOG_POSITIVE_BUTTONS += ["+" + DIALOG_NUMERIC_ADJUST_VALUE];
-            DIALOG_NEGATIVE_BUTTONS += ["-" + DIALOG_NUMERIC_ADJUST_VALUE];
-        }
-    }
-
-    if(use_negative)
-        DIALOG_ADDITION_BUTTONS = ["+/-"];
-    else DIALOG_ADDITION_BUTTONS = [];
-
-    if(count > 3)
-    {
-        if(llGetListLength(DIALOG_ADDITION_BUTTONS) == 0) DIALOG_ADDITION_BUTTONS = [" "];
-
-        DIALOG_NUMERIC_ADJUST_VALUE = llList2String(adjust_values, index);
-        DIALOG_ADDITION_BUTTONS += ["+" + DIALOG_NUMERIC_ADJUST_VALUE, "-" + DIALOG_NUMERIC_ADJUST_VALUE];
-    }
-    else if(DIALOG_ADDITION_BUTTONS != []) DIALOG_ADDITION_BUTTONS += [" ", " "];
-
-    return DIALOG_ADDITION_BUTTONS + DIALOG_NEGATIVE_BUTTONS + DIALOG_POSITIVE_BUTTONS + DIALOG_CONTROL_BUTTONS;
-}
-
 message_linked(integer num, string str, key id)
 {
     REQUESTED_CHANNEL = num;
@@ -259,7 +231,7 @@ message_linked(integer num, string str, key id)
 response(integer sender_num, integer num, string str, key id)
 {
     list data = llParseStringKeepNulls(str, [DIALOG_SEPERATOR], []);
-    if((num == LINK_INTERFACE_NOTIFY) || (num == LINK_INTERFACE_NUMERIC) || (num == LINK_INTERFACE_DIALOG))
+    if(num == LINK_INTERFACE_DIALOG)
     {
         DIALOG_MENU_MESSAGE = llList2String(data, 0);
         DIALOG_TIMEOUT = llList2Integer(data, 1);
@@ -275,34 +247,60 @@ response(integer sender_num, integer num, string str, key id)
         integer count = llGetListLength(data);
         if(count > 2)
         {
-			DIALOG_ITEMS_COUNT = 0;
+            DIALOG_ITEMS_COUNT = 0;
             for(index = 2; index<count;index)
             {
                 DIALOG_MENU_BUTTONS += [llList2String(data, index++)];
                 DIALOG_MENU_RETURNS += [llList2String(data, index++)];
-				++DIALOG_ITEMS_COUNT;
+                ++DIALOG_ITEMS_COUNT;
             }
         }
         else
         {
             DIALOG_MENU_BUTTONS = [BUTTON_OK];
             DIALOG_MENU_RETURNS = [];
-			DIALOG_ITEMS_COUNT = 1;
-        }
-        if(num == LINK_INTERFACE_NOTIFY)
-        {
-            llDialog(AVATAR_UUID, DIALOG_MENU_MESSAGE, cycle(DIALOG_MENU_BUTTONS, ""), LISTEN_CHANNEL);
-            return;
-        }
-        else if(num == LINK_INTERFACE_NUMERIC)
-            REDIRECT_STATE = "Numeric";
-        else if(num == LINK_INTERFACE_DIALOG)
-        {
-            REDIRECT_STATE = "Dialog";
+            DIALOG_ITEMS_COUNT = 1;
         }
 
+        REDIRECT_STATE = "Dialog";
         if(TRUE) state Redirect;
+    }
+    else if(num == LINK_INTERFACE_NUMERIC)
+    {
+        llOwnerSay(llDumpList2String(data, "#"));
+        DIALOG_MENU_MESSAGE = llList2String(data, 1);
+        DIALOG_TIMEOUT = llList2Integer(data, 2);
+        DIALOG_NUMERIC_VALUE = llList2Integer(data, 0);
+        
+        AVATAR_UUID = id;
+        REQUESTED_LINK = sender_num;
+        DIALOG_MENU_BUTTONS = [BUTTON_OK, BUTTON_ADDITION];
+        DIALOG_MENU_RETURNS = [];
 
+        if(DIALOG_MENU_MESSAGE == "") DIALOG_MENU_MESSAGE = " ";
+        if(DIALOG_TIMEOUT > 7200) DIALOG_TIMEOUT = 7200;
+
+        integer index;
+        integer count = llGetListLength(data);
+        if(count > 3)
+        {
+            DIALOG_ITEMS_COUNT = 0;
+            for(index = 3; index<count;index)
+            {
+                DIALOG_MENU_BUTTONS += [llList2String(data, index++)];
+                DIALOG_MENU_RETURNS += [llList2String(data, index++)];
+                ++DIALOG_ITEMS_COUNT;
+            }
+        }
+        else
+        {
+            DIALOG_MENU_BUTTONS = [BUTTON_OK];
+            DIALOG_MENU_RETURNS = [];
+            DIALOG_ITEMS_COUNT = 1;
+        }
+
+        REDIRECT_STATE = "Numeric";
+        if(TRUE) state Redirect;
     }
     else if(num == LINK_INTERFACE_TEXTBOX)
     {
@@ -312,8 +310,8 @@ response(integer sender_num, integer num, string str, key id)
         REQUESTED_LINK = sender_num;
         DIALOG_MENU_BUTTONS = [];
         DIALOG_MENU_RETURNS = [llList2String(data, 2)];
-		DIALOG_ITEMS_COUNT = 0;
-		
+        DIALOG_ITEMS_COUNT = 0;
+        
         if(DIALOG_TIMEOUT > 7200) DIALOG_TIMEOUT = 7200;
 
         REDIRECT_STATE = "Textbox";
@@ -396,28 +394,28 @@ request(integer sender_num, integer num, string str, key id)
         }
     }
     else if(num == LINK_INTERFACE_CLEAR)
-	{
+    {
         clear_dialog();
     }
-	else if(num == LINK_INTERFACE_ADD)
+    else if(num == LINK_INTERFACE_ADD)
     {
-		integer DIALOG_DATA_COUNT = ((llGetListLength(data) - 2) / 2);
-		if(DIALOG_DATA_COUNT < 80)
-		{
-			DIALOG_MENU_MESSAGE = llList2String(data, 0);
-			DIALOG_TIMEOUT = llList2Integer(data, 1);
-			DIALOG_MENU_BUTTONS = [];
-			DIALOG_MENU_RETURNS = [];
-			integer index = 2;
-			integer count = llGetListLength(data);
-			for(index = 2; index < count; index)
-			{
-				DIALOG_MENU_BUTTONS += [llList2String(data, index++)];
-				DIALOG_MENU_RETURNS += [llList2String(data, index++)];
-			}
-			add_dialog((string)id, DIALOG_MENU_MESSAGE, DIALOG_MENU_BUTTONS, DIALOG_MENU_RETURNS, DIALOG_TIMEOUT);
-		}
-		else llSay(0, "Too Many Buttons, Try Reduce the Menu Size");
+        integer DIALOG_DATA_COUNT = ((llGetListLength(data) - 2) / 2);
+        if(DIALOG_DATA_COUNT < 80)
+        {
+            DIALOG_MENU_MESSAGE = llList2String(data, 0);
+            DIALOG_TIMEOUT = llList2Integer(data, 1);
+            DIALOG_MENU_BUTTONS = [];
+            DIALOG_MENU_RETURNS = [];
+            integer index = 2;
+            integer count = llGetListLength(data);
+            for(index = 2; index < count; index)
+            {
+                DIALOG_MENU_BUTTONS += [llList2String(data, index++)];
+                DIALOG_MENU_RETURNS += [llList2String(data, index++)];
+            }
+            add_dialog((string)id, DIALOG_MENU_MESSAGE, DIALOG_MENU_BUTTONS, DIALOG_MENU_RETURNS, DIALOG_TIMEOUT);
+        }
+        else llSay(0, "Too Many Buttons, Try Reduce the Menu Size");
     }
     else if(num == LINK_INTERFACE_SHOW)
     {
@@ -586,16 +584,8 @@ state Numeric
     state_entry()
     {
         REQUESTED_CHANNEL = -1;
-
-        DIALOG_NUMERIC_VALUE = llList2Float(DIALOG_MENU_RETURNS, 0);
-        DIALOG_NUMERIC_INTEGER = llList2Integer(DIALOG_MENU_RETURNS, 2);
-        DIALOG_MENU_BUTTONS = numeric_dialog(DIALOG_MENU_BUTTONS, llList2Integer(DIALOG_MENU_RETURNS, 1));
-
-        if(DIALOG_NUMERIC_INTEGER)
-            DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)((integer)DIALOG_NUMERIC_VALUE));
-        else DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
-
-        LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_NUMERIC_FORMAT, cycle(DIALOG_MENU_BUTTONS, ""));
+        DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
+        LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_NUMERIC_FORMAT, sort(DIALOG_MENU_BUTTONS));
         llSetTimerEvent(DIALOG_TIMEOUT);
     }
 
@@ -619,7 +609,7 @@ state Numeric
     {
         if(num == LINK_INTERFACE_RESHOW)
         {
-            LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_MENU_MESSAGE, cycle(DIALOG_MENU_BUTTONS, ""));
+            LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_MENU_MESSAGE, sort(DIALOG_MENU_BUTTONS));
             llSetTimerEvent(DIALOG_TIMEOUT);
         }
         else if(num == LINK_INTERFACE_CANCEL)
@@ -634,26 +624,25 @@ state Numeric
     {
         if((channel != LISTEN_CHANNEL) || (id != AVATAR_UUID)) return;
 
+        if( llListFindList(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], [msg]) != -1)
+        {
+            DIALOG_NUMERIC_VALUE += (integer)msg;
+			DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
+            LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_NUMERIC_FORMAT, sort(DIALOG_MENU_BUTTONS));
+			llSetTimerEvent(DIALOG_TIMEOUT);
+ 
+        }
         if(msg == BUTTON_OK)
         {
             message_linked(LINK_INTERFACE_RESPONSE, (string)DIALOG_NUMERIC_VALUE, AVATAR_UUID);
             state default;
         }
-        else if(msg == BUTTON_CANCEL)
+        else if(msg == BUTTON_ADDITION)
         {
-            message_linked(LINK_INTERFACE_CANCELLED, (string)DIALOG_NUMERIC_VALUE, AVATAR_UUID);
-            state default;
+			DIALOG_NUMERIC_VALUE = -DIALOG_NUMERIC_VALUE;
+			DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
+			LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_NUMERIC_FORMAT, sort(DIALOG_MENU_BUTTONS));
+			llSetTimerEvent(DIALOG_TIMEOUT);
         }
-        else if(msg == "+/-")
-            DIALOG_NUMERIC_VALUE = -DIALOG_NUMERIC_VALUE;
-        else if(llSubStringIndex(msg, "+") == 0)
-            DIALOG_NUMERIC_VALUE += (float)llDeleteSubString(msg, 0, 0);
-        else if(llSubStringIndex(msg, "-") == 0)
-            DIALOG_NUMERIC_VALUE -= (float)llDeleteSubString(msg, 0, 0);
-        if(DIALOG_NUMERIC_INTEGER)
-            DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)((integer)DIALOG_NUMERIC_VALUE));
-        else DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
-        LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_NUMERIC_FORMAT, cycle(DIALOG_MENU_BUTTONS, ""));
-        llSetTimerEvent(DIALOG_TIMEOUT);
    }
 }

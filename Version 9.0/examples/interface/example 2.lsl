@@ -37,6 +37,12 @@ string dialog_command(string message, list buttons, list returns, integer timeou
     return packed_message;
 }
 
+string numeric_command(integer value, string message, integer timeout)
+{
+    string packed_message =  (string)value + DIALOG_SEPERATOR + message + DIALOG_SEPERATOR + (string)timeout;
+    return packed_message;
+}
+
 dialog_show(string name, key id)
 {
     llMessageLinked(LINK_THIS, LINK_INTERFACE_SHOW, name, id);
@@ -62,9 +68,9 @@ add_textbox(key id, string message, integer timeout)
     llMessageLinked(LINK_THIS, LINK_INTERFACE_TEXTBOX, message + DIALOG_SEPERATOR + (string)timeout, id);
 }
 
-add_numeric(key id, string message, list buttons, list returns, integer timeout)
+add_numeric(key id, integer value, string message, integer timeout)
 {
-    llMessageLinked(LINK_THIS, LINK_INTERFACE_NUMERIC, dialog_command(message, buttons, returns, timeout), id);
+    llMessageLinked(LINK_THIS, LINK_INTERFACE_NUMERIC, numeric_command(value, message, timeout), id);
 }
 
 dialog_sound(string sound, float volume)
@@ -174,18 +180,14 @@ default{
             }
             else if(str == "Numeric")
             {
+
                 // Add Number Dialog
                 add_numeric(id,
- 
+
+					1000, // current value
+
 					// Dialog message here
 					"Current Value = {VALUE}",
- 
-					// List of dialog buttons
-					[ 1, 2, 3, 4, "Close" ],
- 
-					// List of return value from the buttons, in same order
-					// Note that this value do not need to be the same as button texts
-					[ 1, 2, 3, 4, "X" ],
 
 					DIALOG_TIMEOUT // Dialog Timeout
 				);
