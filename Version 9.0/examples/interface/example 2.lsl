@@ -37,9 +37,12 @@ string dialog_command(string message, list buttons, list returns, integer timeou
     return packed_message;
 }
 
-string numeric_command(integer value, string message, integer timeout)
+string numeric_command(integer value, string message, list buttons, integer timeout)
 {
     string packed_message =  (string)value + DIALOG_SEPERATOR + message + DIALOG_SEPERATOR + (string)timeout;
+    integer i;
+    integer count = llGetListLength(buttons);
+    for(i=0; i<count; i++) packed_message += DIALOG_SEPERATOR + llList2String(buttons, i) + DIALOG_SEPERATOR + llList2String(buttons, i);
     return packed_message;
 }
 
@@ -68,31 +71,31 @@ add_textbox(key id, string message, integer timeout)
     llMessageLinked(LINK_THIS, LINK_INTERFACE_TEXTBOX, message + DIALOG_SEPERATOR + (string)timeout, id);
 }
 
-add_numeric(key id, integer value, string message, integer timeout)
+add_numeric(key id, integer value, string message, list buttons, integer timeout)
 {
-    llMessageLinked(LINK_THIS, LINK_INTERFACE_NUMERIC, numeric_command(value, message, timeout), id);
+    llMessageLinked(LINK_THIS, LINK_INTERFACE_NUMERIC, numeric_command(value, message, buttons, timeout), id);
 }
 
 dialog_sound(string sound, float volume)
 {
-	llMessageLinked(LINK_THIS, LINK_INTERFACE_SOUND, sound + DIALOG_SEPERATOR + (string)volume, NULL_KEY);
+    llMessageLinked(LINK_THIS, LINK_INTERFACE_SOUND, sound + DIALOG_SEPERATOR + (string)volume, NULL_KEY);
 }
 
 dialog_clear()
 {
-	llMessageLinked(LINK_THIS, LINK_INTERFACE_CLEAR, "", NULL_KEY);
+    llMessageLinked(LINK_THIS, LINK_INTERFACE_CLEAR, "", NULL_KEY);
 }
 // ********** END DIALOG FUNCTIONS **********
  
  
 default{
     state_entry()
-	{
+    {
         dialog_clear();
-		
-		dialog_sound("18cf8177-a388-4c1c-90e7-e5750e83d750", 1.0);
         
-		add_menu("MainMenu",
+        dialog_sound("18cf8177-a388-4c1c-90e7-e5750e83d750", 1.0);
+        
+        add_menu("MainMenu",
 
             "Main Menu Dialog Message", // Dialog Messages
 
@@ -141,29 +144,29 @@ default{
 
     link_message(integer sender_num, integer num, string str, key id)
     {
-		if(num == LINK_INTERFACE_ENABLE_DEBUG)
-		{
-			llSay(0, "Debug State Enabled");
-		}
-		else if(num == LINK_INTERFACE_DISABLE_DEBUG)
-		{
-			llSay(0, "Debug State Disabled");
-		}
-		else if(num == LINK_INTERFACE_NOT_FOUND)
-		{
-			llSay(0, "Menu name: " + str + " Not Found");
-		}
+        if(num == LINK_INTERFACE_ENABLE_DEBUG)
+        {
+            llSay(0, "Debug State Enabled");
+        }
+        else if(num == LINK_INTERFACE_DISABLE_DEBUG)
+        {
+            llSay(0, "Debug State Disabled");
+        }
+        else if(num == LINK_INTERFACE_NOT_FOUND)
+        {
+            llSay(0, "Menu name: " + str + " Not Found");
+        }
         if(num == LINK_INTERFACE_TIMEOUT)
         {
             llOwnerSay("Menu time-out. Please try again.");
         }
-		else if(num == LINK_INTERFACE_CANCELLED)
-		{
-			llSay(0, "Dialog Cancelled");
-		}
+        else if(num == LINK_INTERFACE_CANCELLED)
+        {
+            llSay(0, "Dialog Cancelled");
+        }
         else if(num == LINK_INTERFACE_RESPONSE)
         {
-            llWhisper(0, str);
+            llOwnerSay(str);
             if(str == "Debug")
             {
                 llMessageLinked(LINK_THIS, LINK_INTERFACE_DEBUG, "", llDetectedOwner(0));
@@ -175,8 +178,8 @@ default{
                     
                     "Textbox Demo",
                     
-					DIALOG_TIMEOUT
-				);
+                    DIALOG_TIMEOUT
+                );
             }
             else if(str == "Numeric")
             {
@@ -184,23 +187,23 @@ default{
                 // Add Number Dialog
                 add_numeric(id,
 
-					1000, // current value
+                    1000, // current value
 
-					// Dialog message here
-					"Current Value = {VALUE}",
+                    // Dialog message here
+                    "Current Value = {VALUE}",
+                    
+                    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], //buttons
 
-					[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], //buttons
-
-					DIALOG_TIMEOUT // Dialog Timeout
-				);
+                    DIALOG_TIMEOUT // Dialog Timeout
+                );
             }
         }
     }
 
     touch_start(integer num_detected)
     {
-        dialog_show("SubMenu1", llDetectedOwner(0));
-		//llMessageLinked(LINK_THIS, LINK_INTERFACE_SHOW, "", llDetectedOwner(0));
+        dialog_show("MainMenu", llDetectedOwner(0));
+        //llMessageLinked(LINK_THIS, LINK_INTERFACE_SHOW, "", llDetectedOwner(0));
         //llSleep(2);
         //llMessageLinked(LINK_THIS, LINK_INTERFACE_DEBUG, "", llDetectedOwner(0));
     }

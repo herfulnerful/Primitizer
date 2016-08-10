@@ -624,25 +624,32 @@ state Numeric
     {
         if((channel != LISTEN_CHANNEL) || (id != AVATAR_UUID)) return;
 
-        if( llListFindList(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], [msg]) != -1)
-        {
-            DIALOG_NUMERIC_VALUE += (integer)msg;
-			DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
-            LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_NUMERIC_FORMAT, sort(DIALOG_MENU_BUTTONS));
-			llSetTimerEvent(DIALOG_TIMEOUT);
- 
-        }
-        if(msg == BUTTON_OK)
-        {
-            message_linked(LINK_INTERFACE_RESPONSE, (string)DIALOG_NUMERIC_VALUE, AVATAR_UUID);
-            state default;
-        }
-        else if(msg == BUTTON_ADDITION)
-        {
-			DIALOG_NUMERIC_VALUE = -DIALOG_NUMERIC_VALUE;
-			DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
+		if ( llListFindList( DIALOG_MENU_RETURNS, [ msg ]) != -1 )
+		{
+			if( llListFindList(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], [msg]) != -1)
+			{
+				DIALOG_NUMERIC_VALUE += (integer)msg;
+				DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
+				LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_NUMERIC_FORMAT, sort(DIALOG_MENU_BUTTONS));
+				llSetTimerEvent(DIALOG_TIMEOUT);
+			}
+			if(msg == BUTTON_OK)
+			{
+				message_linked(LINK_INTERFACE_RESPONSE, (string)DIALOG_NUMERIC_VALUE, AVATAR_UUID);
+				state default;
+			}
+			else if(msg == BUTTON_ADDITION)
+			{
+				DIALOG_NUMERIC_VALUE = -DIALOG_NUMERIC_VALUE;
+				DIALOG_NUMERIC_FORMAT = replace(DIALOG_MENU_MESSAGE, "{VALUE}", (string)DIALOG_NUMERIC_VALUE);
+				LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_NUMERIC_FORMAT, sort(DIALOG_MENU_BUTTONS));
+				llSetTimerEvent(DIALOG_TIMEOUT);
+			}
+		}
+		else
+		{
 			LISTEN_CHANNEL = dialog(AVATAR_UUID, DIALOG_NUMERIC_FORMAT, sort(DIALOG_MENU_BUTTONS));
 			llSetTimerEvent(DIALOG_TIMEOUT);
-        }
+		}
    }
 }
